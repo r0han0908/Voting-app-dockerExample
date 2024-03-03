@@ -1,0 +1,52 @@
+services:
+  vote:
+    build: ./vote/
+    depends_on:
+      - redis
+      - db
+    ports:
+      - "8080:80" 
+    networks:
+      - frontend
+  
+  redis:
+    image: redis:latest
+    depends_on:
+      - db
+    networks:
+      - frontend
+      - backend
+
+  worker:
+    build: ./worker/
+    depends_on:
+      - redis
+      - db
+    networks:
+      - backend
+
+  result:
+    build: ./result
+    ports:
+      - "8081:80"
+    depends_on:
+      - redis
+      - db
+    networks:
+      - frontend
+      - backend
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    networks:
+      - backend
+
+volumes:
+  db-data:
+
+networks:
+  frontend:
+  backend:
